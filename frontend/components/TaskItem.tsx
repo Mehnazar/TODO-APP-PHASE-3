@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Circle, CheckCircle2, Edit2, Trash2, Clock, Sparkles } from 'lucide-react'
-import { Task } from '@/types/task'
+import { Circle, CheckCircle2, Edit2, Trash2, Clock, Sparkles, AlertCircle, Zap } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { Task } from '@/types/task'
 import PriorityBadge from './PriorityBadge'
 import CategoryBadge from './CategoryBadge'
 import DueDateDisplay from './DueDateDisplay'
@@ -100,59 +100,34 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
       )}
 
       <div className="flex items-start gap-4 p-5">
-        {/* Completion Toggle - Enhanced with animation */}
-        <motion.button
-          onClick={handleToggle}
-          disabled={isToggling}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex-shrink-0 mt-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-full"
-          aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
-        >
-          <AnimatePresence mode="wait">
-            {task.completed ? (
-              <motion.div
-                key="completed"
-                initial={{ scale: 0.8, rotate: -90 }}
-                animate={{ scale: 1, rotate: 0 }}
-                exit={{ scale: 0.8, rotate: 90 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              >
-                <CheckCircle2 className="w-6 h-6 text-emerald-500 drop-shadow-sm" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="incomplete"
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                whileHover={{ scale: 1.15 }}
-              >
-                <Circle
-                  className={cn(
-                    'w-6 h-6 transition-colors duration-200',
-                    isHovered ? 'text-indigo-500 stroke-[2.5]' : 'text-slate-300 stroke-2'
-                  )}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.button>
+        {/* Spacer for left icon (we show completion on the right action area) */}
+        <div className="flex-shrink-0 mt-1 w-6" aria-hidden="true" />
 
         {/* Task Content */}
         <div className="flex-1 min-w-0">
-          {/* Title */}
-          <motion.h3
-            layout
-            className={cn(
-              'text-base font-semibold mb-2.5 leading-snug transition-colors duration-200',
-              task.completed
-                ? 'line-through text-slate-400'
-                : 'text-slate-900'
+          {/* Title with High Priority Icon */}
+          <div className="flex items-center gap-2 mb-2.5">
+            {task.priority === 'high' && (
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex-shrink-0"
+              >
+                <Zap className="w-5 h-5 text-rose-500 fill-rose-500" />
+              </motion.div>
             )}
-          >
-            {task.title}
-          </motion.h3>
+            <motion.h3
+              layout
+              className={cn(
+                'text-base font-semibold leading-snug transition-colors duration-200',
+                task.completed
+                  ? 'line-through text-slate-400'
+                  : 'text-slate-900'
+              )}
+            >
+              {task.title}
+            </motion.h3>
+          </div>
 
           {/* Badges Row */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -182,48 +157,61 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
           </div>
         </div>
 
-        {/* Action Buttons - Slide in on hover */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-              className="flex-shrink-0 flex gap-1.5"
-            >
-              {onEdit && (
-                <motion.button
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgb(238 242 255)' }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => onEdit(task)}
-                  className={cn(
-                    'p-2.5 rounded-lg transition-all',
-                    'text-slate-600 hover:text-indigo-600',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1'
-                  )}
-                  aria-label="Edit task"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </motion.button>
-              )}
+        {/* Action Buttons - Always Visible with Priority and Status */}
+        <div className="flex-shrink-0 flex items-center gap-2">
+          {/* Priority Badge - Always Show */}
+          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-900/5 rounded-lg">
+            <PriorityBadge priority={task.priority} size="sm" />
+          </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: 'rgb(255 228 230)' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => onDelete(task.id)}
-                className={cn(
-                  'p-2.5 rounded-lg transition-all',
-                  'text-slate-600 hover:text-rose-600',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1'
-                )}
-                aria-label="Delete task"
+          {/* Completion Status Indicator */}
+          <div className="flex items-center">
+            {task.completed ? (
+              <motion.div
+                initial={{ scale: 0.8, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                className="text-emerald-500 px-2"
               >
-                <Trash2 className="w-4 h-4" />
+                <CheckCircle2 className="w-5 h-5" />
+              </motion.div>
+            ) : (
+              <motion.button
+                onClick={handleToggle}
+                disabled={isToggling}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-slate-400 hover:text-indigo-500 px-2 transition-colors"
+                aria-label="Toggle task completion"
+              >
+                <Circle className="w-5 h-5" />
               </motion.button>
-            </motion.div>
+            )}
+          </div>
+
+          {/* Edit Button */}
+          {onEdit && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onEdit(task)}
+              className="p-2 rounded-lg text-slate-500 hover:text-indigo-500 hover:bg-indigo-50/50 transition-colors"
+              aria-label="Edit task"
+            >
+              <Edit2 className="w-5 h-5" />
+            </motion.button>
           )}
-        </AnimatePresence>
+
+          {/* Delete Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onDelete(task.id)}
+            className="p-2 rounded-lg text-slate-500 hover:text-rose-500 hover:bg-rose-50/50 transition-colors"
+            aria-label="Delete task"
+          >
+            <Trash2 className="w-5 h-5" />
+          </motion.button>
+        </div>
       </div>
 
       {/* Completion celebration effect */}

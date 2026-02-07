@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, Edit2, LogOut, User } from 'lucide-react'
+import { Trash2, Edit2, LogOut, MessageSquare, User } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { taskAPI } from '@/lib/api'
 import { useToast } from '@/hooks/useToast'
@@ -26,8 +26,8 @@ export default function DashboardPage() {
   // Color rotation for vibrant cards
   const colorRotation = [
     { bg: 'bg-purple-500', hover: 'hover:bg-purple-600' },
-    { bg: 'bg-orange-500', hover: 'hover:bg-orange-600' },
     { bg: 'bg-blue-500', hover: 'hover:bg-blue-600' },
+    { bg: 'bg-cyan-400', hover: 'hover:bg-cyan-500' },
   ]
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function DashboardPage() {
 
   if (loading && !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-800 via-slate-900 to-slate-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
           <p className="text-lg text-gray-300">Loading your tasks...</p>
@@ -141,10 +141,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-800 via-slate-900 to-slate-950 p-4 md:p-8">
       {/* Top Bar with User Info */}
       <div className="max-w-4xl mx-auto mb-6">
         <div className="flex justify-end items-center gap-3">
+          <button
+            onClick={() => router.push('/chat')}
+            className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg border border-slate-600 text-white transition-colors"
+          >
+            <MessageSquare className="w-4 h-4 text-purple-300" />
+            <span className="text-sm hidden sm:inline">Chat</span>
+          </button>
           <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg border border-slate-600">
             <User className="w-4 h-4 text-purple-400" />
             <span className="text-sm font-medium text-white">{user?.name}</span>
@@ -213,7 +220,7 @@ export default function DashboardPage() {
                   <span className="text-base md:text-xl font-medium flex-1 mr-4">
                     <span className="font-bold">{taskNumber}</span> - {task.title}
                   </span>
-                  <div className="flex gap-2 md:gap-3 flex-shrink-0">
+                  <div className="flex gap-2 md:gap-3 shrink-0">
                     <button
                       onClick={() => {
                         const taskToDelete = tasks.find(t => t.id === task.id)

@@ -6,6 +6,7 @@ import axios from 'axios'
 import { auth } from './auth'
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/types/task'
 import type { RegisterRequest, LoginRequest, AuthResponse } from '@/types/user'
+import type { ChatRequest, ChatResponse } from '@/types/chat'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -89,6 +90,17 @@ export const taskAPI = {
    */
   toggleComplete: async (userId: string, taskId: number): Promise<Task> => {
     const response = await api.patch<Task>(`/api/v1/${userId}/tasks/${taskId}/complete`)
+    return response.data
+  }
+}
+
+// Chat API
+export const chatAPI = {
+  /**
+   * Send a chat message for a user.
+   */
+  sendMessage: async (userId: string, data: ChatRequest): Promise<ChatResponse> => {
+    const response = await api.post<ChatResponse>(`/api/v1/${userId}/chat`, data)
     return response.data
   }
 }
