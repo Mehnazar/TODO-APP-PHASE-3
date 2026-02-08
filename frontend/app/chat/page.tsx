@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bot, LogOut, Send, User } from 'lucide-react'
+import { ArrowLeft, Bot, LogOut, Send, User } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { chatAPI } from '@/lib/api'
 import { useToast } from '@/hooks/useToast'
@@ -123,6 +123,10 @@ export default function ChatPage() {
     resetConversation()
   }
 
+  const handleBack = () => {
+    router.push('/dashboard')
+  }
+
   const emptyState = useMemo(() => messages.length === 0, [messages.length])
 
   return (
@@ -143,6 +147,13 @@ export default function ChatPage() {
               <User className="w-4 h-4 text-purple-300" />
               <span className="text-sm font-medium">{userName}</span>
             </div>
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm hidden sm:inline">Back</span>
+            </button>
             <button
               onClick={handleNewChat}
               className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 transition-colors"

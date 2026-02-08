@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, Edit2, LogOut, MessageSquare, User } from 'lucide-react'
+import { Trash2, Edit2, LogOut, MessageSquare, User, CheckCircle2, Circle } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { taskAPI } from '@/lib/api'
 import { useToast } from '@/hooks/useToast'
@@ -124,6 +124,19 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
+  const handleToggleTask = async (taskId: number) => {
+    if (!user) return
+
+    try {
+      const updatedTask = await taskAPI.toggleComplete(user.id, taskId)
+      setTasks(tasks.map(task =>
+        task.id === taskId ? updatedTask : task
+      ))
+    } catch (err: any) {
+      toast.error('Failed to toggle task')
+    }
+  }
+
   // Helper function to get card color based on index
   const getTaskColor = (index: number) => {
     return colorRotation[index % colorRotation.length]
@@ -217,10 +230,25 @@ export default function DashboardPage() {
                   key={task.id}
                   className={`${color.bg} rounded-xl p-4 md:p-5 flex items-center justify-between text-white shadow-lg hover:shadow-2xl transition-all group ${color.hover}`}
                 >
-                  <span className="text-base md:text-xl font-medium flex-1 mr-4">
+                  <span
+                    className={`text-base md:text-xl font-medium flex-1 mr-4 ${
+                      task.completed ? 'line-through opacity-80' : ''
+                    }`}
+                  >
                     <span className="font-bold">{taskNumber}</span> - {task.title}
                   </span>
                   <div className="flex gap-2 md:gap-3 shrink-0">
+                    <button
+                      onClick={() => handleToggleTask(task.id)}
+                      className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      title={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                    >
+                      {task.completed ? (
+                        <CheckCircle2 size={18} className="md:w-5 md:h-5" />
+                      ) : (
+                        <Circle size={18} className="md:w-5 md:h-5" />
+                      )}
+                    </button>
                     <button
                       onClick={() => {
                         const taskToDelete = tasks.find(t => t.id === task.id)
